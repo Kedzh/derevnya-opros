@@ -1,0 +1,13 @@
+﻿# Кэш GitHub Pages
+_site/
+.nojekyll
+
+# Системное
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Служебное
+*.tmp
+*.log
+~$*

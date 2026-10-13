@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Опрос: благоустройство нашей деревни</title>
+<style>
+  :root{
+    --green:#2e7d32;
+    --green-light:#4caf50;
+    --green-pale:#e8f5e9;
+    --water:#0277bd;
+    --orange:#ef6c00;
+    --red:#c62828;
+    --gray:#546e7a;
+    --gray-light:#eceff1;
+    --text:#1a2b20;
+    --border:#c8e6c9;
+    --shadow:0 2px 12px rgba(0,0,0,.08);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;
+    background:linear-gradient(160deg,#f1f8e9 0%,#e3f2fd 100%);
+    color:var(--text);
+    line-height:1.6;
+    padding:0 0 60px;
+  }
+  .wrap{max-width:820px;margin:0 auto;padding:0 16px;}
+
+  header.hero{
+    background:linear-gradient(135deg,var(--green) 0%,var(--water) 100%);
+    color:#fff;
+    padding:36px 16px 30px;
+    text-align:center;
+  }
+  header.hero .wrap{padding:0;}
+  header.hero h1{margin:0 0 8px;font-size:1.9rem;line-height:1.25;}
+  header.hero p{margin:0;opacity:.92;font-size:1.02rem;}
+
+  .progress-wrap{background:#fff;padding:14px 0;box-shadow:var(--shadow);position:sticky;top:0;z-index:50;}
+  .progress{height:10px;background:var(--gray-light);border-radius:99px;overflow:hidden;}
+  .progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--green-light),var(--water));transition:width .35s ease;}
+  .progress-text{font-size:.85rem;color:var(--gray);margin-top:6px;text-align:center;}
+
+  .card{
+    background:#fff;
+    border-radius:14px;
+    padding:24px;
+    margin:20px 0;
+    box-shadow:var(--shadow);
+    border-left:5px solid var(--green-light);
+  }
+  .card.hidden{display:none;}
+  .q-num{color:var(--green);font-weight:700;font-size:.9rem;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+  .q-title{font-size:1.12rem;font-weight:600;margin:0 0 6px;}
+  .q-hint{color:var(--gray);font-size:.9rem;margin:0 0 16px;}
+
+  label.opt{
+    display:flex;
+    align-items:flex-start;
+    gap:11px;
+    padding:12px 14px;
+    margin-bottom:9px;
+    background:var(--green-pale);
+    border:1.5px solid var(--border);
+    border-radius:10px;
+    cursor:pointer;
+    transition:.15s;
+  }
+  label.opt:hover{background:#dcedc8;border-color:var(--green-light);}
+  label.opt input{margin-top:4px;flex-shrink:0;width:18px;height:18px;accent-color:var(--green);cursor:pointer;}
+  label.opt.checked{background:var(--green);color:#fff;border-color:var(--green);}
+  label.opt.checked input{accent-color:#fff;}
+  label.opt .txt{flex:1;}
+
+  textarea,input[type=text],select{
+    width:100%;
+    padding:11px 13px;
+    border:1.5px solid var(--border);
+    border-radius:9px;
+    font-family:inherit;
+    font-size:1rem;
+    background:#fafdfa;
+    color:var(--text);
+  }
+  textarea:focus,input[type=text]:focus{outline:none;border-color:var(--green);background:#fff;}
+  textarea{min-height:88px;resize:vertical;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:600px){.two-col{grid-template-columns:1fr;}}
+
+  .scale{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+  .scale-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .scale-label{flex:1;min-width:190px;font-size:.97rem;}
+  .scale-opts{display:flex;gap:5px;}
+  .scale-opts label{
+    width:38px;height:38px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--gray-light);
+    border:1.5px solid transparent;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+    transition:.15s;
+  }
+  .scale-opts label:hover{background:var(--green-pale);}
+  .scale-opts input{display:none;}
+  .scale-opts input:checked + span{}
+  .scale-opts label:has(input:checked){background:var(--green);color:#fff;}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:600px){.grid2{grid-template-columns:1fr;}}
+
+  .error{color:var(--red);font-size:.88rem;margin-top:6px;display:none;}
+  .card.has-error{border-left-color:var(--red);}
+  .card.has-error .error{display:block;}
+
+  .btn{
+    display:inline-block;
+    padding:14px 30px;
+    background:var(--green);
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    font-size:1.05rem;
+    font-weight:600;
+    font-family:inherit;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .btn:hover{background:var(--green-light);}
+  .btn:disabled{background:#b0bec5;cursor:not-allowed;}
+  .btn.ghost{background:transparent;color:var(--green);border:2px solid var(--green);}
+  .btn.ghost:hover{background:var(--green-pale);}
+  .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;}
+
+  .done{
+    text-align:center;
+    padding:44px 24px;
+  }
+  .done .big{font-size:3.2rem;line-height:1;margin-bottom:12px;}
+  .done h2{color:var(--green);margin:0 0 10px;}
+
+  .note{
+    background:#fff8e1;
+    border-left:4px solid var(--orange);
+    padding:13px 16px;
+    border-radius:8px;
+    font-size:.92rem;
+    margin:16px 0;
+  }
+  .note code{background:#fff;padding:1px 5px;border-radius:4px;font-size:.9em;}
+
+  .followup{
+    margin-top:14px;
+    padding:16px 18px;
+    background:var(--green-pale);
+    border-radius:10px;
+    border:1.5px dashed var(--green-light);
+  }
+  .followup .q-title{font-size:1rem;}
+  .hidden{display:none !important;}
+
+  footer{text-align:center;color:var(--gray);font-size:.88rem;margin-top:30px;padding:0 16px;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>🌿 Как сделать нашу деревню лучше?</h1>
+    <p>Опрос о благоустройстве: сквер, зоны отдыха, детские площадки и мост.<br>
+       Нам важно ваше мнение — каждый голос учтём в проекте.</p>
+  </div>
+</header>
+
+<div class="progress-wrap">
+  <div class="wrap">
+    <div class="progress"><div class="progress-bar" id="bar"></div></div>
+    <div class="progress-text" id="progText">Шаг 1 из 8</div>
+  </div>
+</div>
+
+<div class="wrap" id="form">
+
+  <!-- 1. О себе -->
+  <div class="card step" data-step="1">
+    <div class="q-num">Немного о вас</div>
+    <h2 class="q-title">Давайте познакомимся</h2>
+    <p class="q-hint">Это нужно, чтобы понимать, какие возрастные группы и жители больше всего нуждаются в изменениях. Имя можно не указывать.</p>
+
+    <div class="two-col">
+      <div>
+        <label class="q-title" style="font-size:.95rem;display:block;margin-bottom:6px;">Ваше имя или псевдоним <em>(необязательно)</em></label>
+        <input type="text" id="name" placeholder="Например: Анна">
+      </div>
+      <div>
+        <label class="q-title" style="font-size:.95rem;display:block;margin-bottom:6px;">Возраст</label>
+        <select id="age">
+          <option value="">— выберите —</option>
+          <option>до 14 лет</option>
+          <option>15–17 лет</option>
+          <option>18–35 лет</option>
+          <option>36–60 лет</option>
+          <option>старше 60 лет</option>
+          <option>не хочу указывать</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;">
+      <div class="q-title" style="font-size:.95rem;margin-bottom:8px;">Вы проживаете в нашей деревне?</div>
+      <label class="opt"><input type="radio" name="resident" value="Да, живу здесь"><span class="txt">Да, живу здесь постоянно</span></label>
+      <label class="opt"><input type="radio" name="resident" value="Бываю, но не живу"><span class="txt">Бываю, но не живу постоянно</span></label>
+      <label class="opt"><input type="radio" name="resident" value="Приезжаю на лето"><span class="txt">Приезжаю на лето / в выходные</span></label>
+      <label class="opt"><input type="radio" name="resident" value="Нет, живу в городе"><span class="txt">Нет, живу в городе / другом населённом пункте</span></label>
+    </div>
+
+    <p class="q-hint" style="margin:0 0 4px;">Спасибо! Дальше — по существу 🙂</p>
+    <div class="actions"><button class="btn next" data-next="2">Дальше →</button></div>
+  </div>
+
+  <!-- 2. Где не хватает -->
+  <div class="card step hidden" data-step="2">
+    <div class="q-num">Вопрос 1</div>
+    <h2 class="q-title">Где, на ваш взгляд, в нашей деревне больше всего не хватает благоустроенного пространства?</h2>
+    <p class="q-hint">Выберите один главный вариант.</p>
+
+    <label class="opt"><input type="radio" name="need" value="Сквер / зона отдыха"><span class="txt">🏞️ Сквер / зелёная зона отдыха</span></label>
+    <label class="opt"><input type="radio" name="need" value="Детская площадка"><span class="txt">🛝 Детская площадка</span></label>
+    <label class="opt"><input type="radio" name="need" value="Мост"><span class="txt">🌉 Мост</span></label>
+    <label class="opt"><input type="radio" name="need" value="Спортивная площадка"><span class="txt">⚽ Спортивная площадка</span></label>
+    <label class="opt"><input type="radio" name="need" value="Другое"><span class="txt">➕ Другое (опишу ниже)</span></label>
+
+    <div class="followup hidden" id="needOther">
+      <div class="q-title" style="font-size:.95rem;margin-bottom:8px;">Что именно не хватает?</div>
+      <input type="text" id="needOtherText" placeholder="Например: парковка, тропа до школы, лавочки у дороги…">
+    </div>
+
+    <p class="error">Пожалуйста, выберите вариант.</p>
+    <div class="actions"><button class="btn next" data-next="3">Дальше →</button></div>
+  </div>
+
+  <!-- 3. Что нравится / изменить -->
+  <div class="card step hidden" data-step="3">
+    <div class="q-num">Вопрос 2</div>
+    <h2 class="q-title">А что скажете о текущем состоянии сквера или моста?</h2>
+    <p class="q-hint">Расскажите своими словами — даже если сквера или моста пока нет, опишите, какой вы его хотите видеть.</p>
+
+    <div class="q-title" style="font-size:.95rem;margin-bottom:6px;">👍 Что вам нравится (или хотелось бы сохранить)?</div>
+    <textarea id="like" placeholder="Например: красивый вид на реку, тенистые деревья, что велосипедисты ходят по мосту…"></textarea>
+
+    <div class="q-title" style="font-size:.95rem;margin:18px 0 6px;">🔧 Что хотелось бы изменить или добавить?</div>
+    <textarea id="change" placeholder="Например: починить перила, поставить лавочки и урны, выровнять настил…"></textarea>
+
+    <div class="actions"><button class="btn ghost prev" data-prev="2">← Назад</button><button class="btn next" data-next="4">Дальше →</button></div>
+  </div>
+
+  <!-- 4. Элементы сквера -->
+  <div class="card step hidden" data-step="4">
+    <div class="q-num">Вопрос 3</div>
+    <h2 class="q-title">Что для вас важно в сквере или зоне отдыха?</h2>
+    <p class="q-hint">Отметьте всё, что считаете важным. Можно выбрать несколько.</p>
+
+    <label class="opt"><input type="checkbox" name="el" value="Урны для мусора"><span class="txt">🗑️ Урны для мусора</span></label>
+    <label class="opt"><input type="checkbox" name="el" value="Освещение"><span class="txt">💡 Освещение</span></label>
+    <label class="opt"><input type="checkbox" name="el" value="Навигация / указатели"><span class="txt">🪧 Навигация (указатели, схема территории)</span></label>
+    <label class="opt"><input type="checkbox" name="el" value="Велодорожки / велопарковка"><span class="txt">🚲 Велодорожки / велопарковка</span></label>
+    <label class="opt"><input type="checkbox" name="el" value="Лавочки и навесы"><span class="txt">🪑 Лавочки, навесы, беседки</span></label>
+    <label class="opt"><input type="checkbox" name="el" value="Детская площадка"><span class="txt">🛝 Детская площадка</span></label>
+    <label class="opt"><input type="checkbox" name="el" value="Спортивная площадка"><span class="txt">⚽ Спортивная площадка / турники</span></label>
+    <label class="opt"><input type="checkbox" name="el" value="Дорожки с покрытием"><span class="txt">🛤️ Ровные дорожки с покрытием (чтобы в коляске, на коляске)</span></label>
+    <label class="opt"><input type="checkbox" name="el" value="Озеленение и клумбы"><span class="txt">🌳 Озеленение, клумбы, деревья</span></label>
+    <label class="opt"><input type="checkbox" name="el" value="Арт-объекты и малые формы"><span class="txt">🎨 Арт-объекты, скамьи-скульптуры, фотозоны</span></label>
+    <label class="opt"><input type="checkbox" name="el" value="Wi-Fi и музыка"><span class="txt">📶 Wi-Fi и музыка</span></label>
+    <label class="opt"><input type="checkbox" name="el" value="Туалет"><span class="txt">🚻 Туалет</span></label>
+    <label class="opt"><input type="checkbox" name="el" value="Другое"><span class="txt">➕ Другое</span></label>
+
+    <div class="followup hidden" id="elOther">
+      <div class="q-title" style="font-size:.95rem;margin-bottom:8px;">Что ещё важно?</div>
+      <input type="text" id="elOtherText" placeholder="Например: питьевой фонтан, качели для бабушек, место для выгула собак…">
+    </div>
+
+    <p class="error">Отметьте хотя бы один вариант.</p>
+    <div class="actions"><button class="btn ghost prev" data-prev="3">← Назад</button><button class="btn next" data-next="5">Дальше →</button></div>
+  </div>
+
+  <!-- 5. Безопасность моста -->
+  <div class="card step hidden" data-step="5">
+    <div class="q-num">Вопрос 4</div>
+    <h2 class="q-title">Считаете ли вы мост безопасным сейчас?</h2>
+    <p class="q-hint">Если моста в вашей деревне нет — выберите «Моста нет».</p>
+
+    <label class="opt"><input type="radio" name="bridge" value="Да, безопасный"><span class="txt">✅ Да, безопасный</span></label>
+    <label class="opt"><input type="radio" name="bridge" value="Скорее да"><span class="txt">🙂 Скорее да, но есть недочёты</span></label>
+    <label class="opt"><input type="radio" name="bridge" value="Скорее нет"><span class="txt">⚠️ Скорее нет</span></label>
+    <label class="opt"><input type="radio" name="bridge" value="Нет, небезопасный"><span class="txt">❌ Нет, небезопасный</span></label>
+    <label class="opt"><input type="radio" name="bridge" value="Моста нет"><span class="txt">🌊 Моста нет / он разрушен</span></label>
+    <label class="opt"><input type="radio" name="bridge" value="Не знаю"><span class="txt">❓ Не знаю / не пользовался</span></label>
+
+    <div class="followup hidden" id="concerns">
+      <div class="q-title">Что вызывает опасения?</div>
+      <p class="q-hint" style="margin-bottom:12px;">Отметьте всё, что беспокоит.</p>
+
+      <label class="opt"><input type="checkbox" name="conc" value="Нет перил или они низкие"><span class="txt">Нет перил или они слишком низкие</span></label>
+      <label class="opt"><input type="checkbox" name="conc" value="Скользкое покрытие"><span class="txt">Скользко: лёд, мох, грязь, мокрый настил</span></label>
+      <label class="opt"><input type="checkbox" name="conc" value="Ямы и неровности"><span class="txt">Ямы, неровности, скрипящие и гнилые доски</span></label>
+      <label class="opt"><input type="checkbox" name="conc" value="Нет освещения"><span class="txt">Темно, нет освещения</span></label>
+      <label class="opt"><input type="checkbox" name="conc" value="Узкий проход"><span class="txt">Узкий проход, невозможно разъехаться</span></label>
+      <label class="opt"><input type="checkbox" name="conc" value="Нет ограждения у воды"><span class="txt">Рядом река без ограждения — опасно для детей</span></label>
+      <label class="opt"><input type="checkbox" name="conc" value="Не видно автомобили"><span class="txt">Водители не тормозят, машины едут быстро</span></label>
+      <label class="opt"><input type="checkbox" name="conc" value="Плохая видимость"><span class="txt">Плохая видимость: туман, дождь, снег</span></label>
+      <label class="opt"><input type="checkbox" name="conc" value="Другое"><span class="txt">Другое</span></label>
+
+      <div class="followup hidden" id="concOther" style="background:#fff;">
+        <div class="q-title" style="font-size:.95rem;margin-bottom:8px;">Что ещё тревожит?</div>
+        <input type="text" id="concOtherText" placeholder="Опишите своими словами">
+      </div>
+    </div>
+
+    <p class="error">Пожалуйста, выберите вариант.</p>
+    <div class="actions"><button class="btn ghost prev" data-prev="4">← Назад</button><button class="btn next" data-next="6">Дальше →</button></div>
+  </div>
+
+  <!-- 6. Помощь проекту -->
+  <div class="card step hidden" data-step="6">
+    <div class="q-num">Вопрос 5</div>
+    <h2 class="q-title">Хотели бы вы помочь нашему проекту?</h2>
+    <p class="q-hint">Проект живёт усилиями неравнодушных людей. Даже ответ «просто приду посмотреть» — уже помощь.</p>
+
+    <label class="opt"><input type="radio" name="help" value="Да, хочу участвовать"><span class="txt">💚 Да, хочу участвовать в проекте</span></label>
+    <label class="opt"><input type="radio" name="help" value="Да, готов помочь делом"><span class="txt">🛠️ Да, готов(а) помочь делом (субботник, расчистка)</span></label>
+    <label class="opt"><input type="radio" name="help" value="Да, идеями"><span class="txt">💡 Да, могу предложить идеи и поработать с волонтёрами</span></label>
+    <label class="opt"><input type="radio" name="help" value="Да, информацией"><span class="txt">📸 Да, могу помочь информацией (фото, документы, опыт)</span></label>
+    <label class="opt"><input type="radio" name="help" value="Пока только наблюдатель"><span class="txt">👀 Пока только как наблюдатель, узнавать новости</span></label>
+    <label class="opt"><input type="radio" name="help" value="Нет"><span class="txt">— Нет, не готов(а)</span></label>
+
+    <div class="followup hidden" id="helpMore">
+      <div class="q-title">Что было бы полезно с вашей стороны?</div>
+      <label class="opt"><input type="checkbox" name="helpHow" value="Прийти на субботник"><span class="txt">Прийти на субботник</span></label>
+      <label class="opt"><input type="checkbox" name="helpHow" value="Работа руками (ремонт, покраска)"><span class="txt">Работа руками: ремонт, покраска, сборка</span></label>
+      <label class="opt"><input type="checkbox" name="helpHow" value="Техника / материалы"><span class="txt">Предоставить технику или материалы</span></label>
+      <label class="opt"><input type="checkbox" name="helpHow" value="Проектирование / рисунки"><span class="txt">Проектирование, рисунки, эскизы</span></label>
+      <label class="opt"><input type="checkbox" name="helpHow" value="Написать письмо / обратиться"><span class="txt">Написать письмо в администрацию или СМИ</span></label>
+      <label class="opt"><input type="checkbox" name="helpHow" value="Рассказать другим"><span class="txt">Рассказать о проекте другим жителям</span></label>
+
+      <div class="q-title" style="font-size:.95rem;margin:16px 0 6px;">Как с вами связаться? <em>(необязательно)</em></div>
+      <input type="text" id="contact" placeholder="Телефон, Telegram или e-mail">
+    </div>
+
+    <p class="error">Пожалуйста, выберите вариант.</p>
+    <div class="actions"><button class="btn ghost prev" data-prev="5">← Назад</button><button class="btn next" data-next="7">Дальше →</button></div>
+  </div>
+
+  <!-- 7. Пожелания -->
+  <div class="card step hidden" data-step="7">
+    <div class="q-num">Вопрос 6</div>
+    <h2 class="q-title">Что ещё хочется сказать?</h2>
+    <p class="q-hint">Пожелания, идеи, предложения, возможно, кто на что надеется.</p>
+    <textarea id="wish" placeholder="Пишите что угодно — это самое ценное для нас."></textarea>
+
+    <div class="actions"><button class="btn ghost prev" data-prev="6">← Назад</button><button class="btn next" data-next="8">Дальше →</button></div>
+  </div>
+
+  <!-- 8. Согласие + отправка -->
+  <div class="card step hidden" data-step="8">
+    <div class="q-num">Отправка</div>
+    <h2 class="q-title">Осталось чуть-чуть</h2>
+
+    <div class="followup hidden" id="sheetWarn" style="background:#fff8e1; border-color:var(--orange);">
+      <strong>⚠️ Таблица ответов ещё не подключена.</strong>
+      <p style="margin:8px 0 0;">Сейчас ответ сохранится только в этом браузере. Чтобы ответы попадали к организаторам, владельцу таблицы нужно один раз вставить ссылку. Если вы волонтёр команды — см. файл <code>README.md</code> рядом с этой страницей.</p>
+    </div>
+
+    <label class="opt" style="background:var(--gray-light);border-color:#cfd8dc;">
+      <input type="checkbox" id="agree">
+      <span class="txt">Я согласен(на) на обработку моих ответов для целей проекта и публикацию обезличенных итогов опроса.</span>
+    </label>
+
+    <div class="actions">
+      <button class="btn ghost prev" data-prev="7">← Назад</button>
+      <button class="btn" id="submit">Отправить ответы ✓</button>
+    </div>
+    <p class="error">Без согласия отправить ответ не получится.</p>
+  </div>
+
+  <div class="card done hidden" id="doneCard">
+    <div class="big">🎉</div>
+    <h2>Спасибо за ваш ответ!</h2>
+    <p id="doneText">Ваш голос учтён. Если вы оставили контакт — мы свяжемся с вами по поводу проекта.</p>
+    <div class="actions" style="justify-content:center;">
+      <button class="btn ghost hidden" id="dlBtn">Скачать копию ответа (CSV)</button>
+      <button class="btn ghost" onclick="location.reload()">Заполнить ещё раз</button>
+    </div>
+    <p style="font-size:.85rem;color:#546e7a;margin-top:16px;max-width:520px;margin-left:auto;margin-right:auto;">
+      Копия ответа — на всякий случай. Если таблица недоступна, просто отправьте этот файл организатору проекта.
+    </p>
+  </div>
+
+</div>
+
+<footer>
+  Опрос общественно значимого проекта «Благоустройство нашей деревни». Все ответы конфиденциальны.
+</footer>
+
+<script>
+/* ==========================================================
+   1. НАСТРОЙКИ — вставьте сюда ссылку веб-приложения Google Таблицы
+   ========================================================== */
+const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxAELkcWzd6GmWt-1_ajveymfzFsHRwBptiStLzeV7xeGTsjG8x0RxIfzlDiwYUZtDkFw/exec";
+const LOCAL_ONLY = !GOOGLE_SHEET_URL; // пока не настроено — работает локально
+
+const SHEET_HEADERS = [
+  "Дата и время","Имя","Возраст","Проживание в деревне",
+  "Чего не хватает (главное)","Чего не хватает — уточнение",
+  "Что нравится в сквере/мосту","Что хочется изменить",
+  "Важные элементы (1-5)","Важные элементы сквера",
+  "Мост безопасен?","Опасения по мосту","Опасения — уточнение",
+  "Помощь проекту","Чем можете помочь","Контакт",
+  "Пожелания","Согласие"
+];
+
+/* ==========================================================
+   2. ЛОГИКА
+   ========================================================== */
+let step = 1;
+const total = 8;
+
+function $(id){ return document.getElementById(id); }
+
+const steps = () => document.querySelectorAll('.step');
+
+function show(n){
+  step = n;
+  steps().forEach(s => {
+    s.classList.toggle('hidden', Number(s.dataset.step) !== n);
+  });
+  $('doneCard').classList.add('hidden');
+  const card = document.querySelector('.step[data-step="'+n+'"]');
+  if (card) card.classList.remove('has-error');
+  $('bar').style.width = Math.round(((n - 1) / (total - 1)) * 100) + '%';
+  $('progText').textContent = n >= total ? 'Проверьте и отправьте' : `Шаг ${n} из ${total}`;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+document.querySelectorAll('.next').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (!validate(step)) return;
+    show(Number(btn.dataset.next));
+  });
+});
+document.querySelectorAll('.prev').forEach(btn => {
+  btn.addEventListener('click', () => show(Number(btn.dataset.prev)));
+});
+
+/* --- подсветка выбранных карточек --- */
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.type === 'radio' || t.type === 'checkbox') {
+    t.closest('label.opt')?.classList.toggle('checked', t.checked);
+    if (t.type === 'radio') {
+      t.closest('.card')?.querySelectorAll('label.opt').forEach(l => {
+        const i = l.querySelector('input');
+        if (i && i.type === 'radio') l.classList.toggle('checked', i.checked);
+      });
+    }
+    if (t.closest('.card')?.classList.contains('has-error')) validate(step);
+  }
+});
+
+/* --- условные блоки --- */
+document.querySelectorAll('input[name="need"]').forEach(i =>
+  i.addEventListener('change', () => $('needOther').classList.toggle('hidden', i.value !== 'Другое' || !i.checked))
+);
+document.querySelectorAll('input[name="el"]').forEach(i =>
+  i.addEventListener('change', () => $('elOther').classList.toggle('hidden', !(i.value === 'Другое' && i.checked)))
+);
+document.querySelectorAll('input[name="conc"]').forEach(i =>
+  i.addEventListener('change', () => $('concOther').classList.toggle('hidden', !(i.value === 'Другое' && i.checked)))
+);
+document.querySelectorAll('input[name="bridge"]').forEach(i =>
+  i.addEventListener('change', () => {
+    $('concerns').classList.toggle('hidden', ['Скорее нет','Нет, небезопасный','Моста нет'].indexOf(i.value) === -1 || !i.checked);
+  })
+);
+document.querySelectorAll('input[name="help"]').forEach(i =>
+  i.addEventListener('change', () => $('helpMore').classList.toggle('hidden', i.value === 'Нет' || !i.checked))
+);
+
+/* --- валидация --- */
+function radioChecked(name, card){
+  return !!card.querySelector(`input[name="${name}"]:checked`);
+}
+function validate(n){
+  const card = document.querySelector('.step[data-step="'+n+'"]');
+  let ok = true, err = '';
+  switch(n){
+    case 2:
+      if (!radioChecked('need', card)){ ok = false; err = 'Выберите, чего не хватает больше всего.'; }
+      break;
+    case 4:
+      if (!card.querySelector('input[name="el"]:checked')){ ok = false; err = 'Отметьте хотя бы один важный элемент.'; }
+      break;
+    case 5:
+      if (!radioChecked('bridge', card)){ ok = false; err = 'Ответьте, насколько мост безопасен.'; }
+      break;
+    case 6:
+      if (!radioChecked('help', card)){ ok = false; err = 'Выберите вариант ответа.'; }
+      break;
+    case 8:
+      if (!$('agree').checked){ ok = false; err = 'Нужно согласие на обработку данных.'; }
+      break;
+  }
+  card.classList.toggle('has-error', !ok);
+  if (!ok) card.querySelector('.error').textContent = err;
+  return ok;
+}
+
+/* ==========================================================
+   3. СБОР И ОТПРАВКА
+   ========================================================== */
+function collect(){
+  const checked = (name) =>
+    [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(i => i.value);
+
+  const scale = {};
+  ['Сквер','Детская площадка','Мост','Другое'].forEach(k => {
+    const v = document.querySelector(`input[name="sc_${k}"]:checked`);
+    scale[k] = v ? v.value : '';
+  });
+
+  return {
+    'Дата и время': new Date().toLocaleString('ru-RU'),
+    'Имя': $('name').value.trim(),
+    'Возраст': $('age').value,
+    'Проживание в деревне': checked('resident')[0] || '',
+    'Чего не хватает (главное)': checked('need')[0] || '',
+    'Чего не хватает — уточнение': $('needOtherText').value.trim(),
+    'Что нравится в сквере/мосту': $('like').value.trim(),
+    'Что хочется изменить': $('change').value.trim(),
+    'Важные элементы (1-5)': `Сквер:${scale['Сквер']||'-'} Детская:${scale['Детская площадка']||'-'} Мост:${scale['Мост']||'-'}`,
+    'Важные элементы сквера': checked('el').join(', '),
+    'Мост безопасен?': checked('bridge')[0] || '',
+    'Опасения по мосту': checked('conc').join(', '),
+    'Опасения — уточнение': $('concOtherText').value.trim(),
+    'Помощь проекту': checked('help')[0] || '',
+    'Чем можете помочь': checked('helpHow').join(', '),
+    'Контакт': $('contact').value.trim(),
+    'Пожелания': $('wish').value.trim(),
+    'Согласие': $('agree').checked ? 'да' : 'нет'
+  };
+}
+
+/* спрятанный блок оценки важности — вставляем динамически в карточку 4 */
+(function addScale(){
+  const card = document.querySelector('.step[data-step="4"]');
+  const block = document.createElement('div');
+  block.style.cssText = 'margin:20px 0 4px;padding-top:16px;border-top:1px dashed #c8e6c9;';
+  block.innerHTML = '<div class="q-title" style="font-size:.95rem;margin-bottom:10px;">Оцените важность от 1 до 5 (необязательно)</div>';
+  const items = ['Сквер','Детская площадка','Мост','Другое'];
+  items.forEach(k => {
+    const row = document.createElement('div');
+    row.className = 'scale-row';
+    row.style.marginBottom = '8px';
+    let opts = '<div class="scale-opts">';
+    for (let i = 1; i <= 5; i++){
+      opts += `<label><input type="radio" name="sc_${k}" value="${i}"><span>${i}</span></label>`;
+    }
+    opts += '</div>';
+    row.innerHTML = `<div class="scale-label">${k === 'Другое' ? 'Другое (уточните выше)' : k}</div>${opts}`;
+    block.appendChild(row);
+  });
+  const note = document.createElement('p');
+  note.className = 'q-hint';
+  note.style.margin = '0';
+  note.textContent = '1 — совсем не важно, 5 — очень важно';
+  block.appendChild(note);
+  card.insertBefore(block, card.querySelector('.error'));
+})();
+
+function csv(rows){
+  const esc = v => `"${String(v ?? '').replace(/"/g,'""')}"`;
+  return '\uFEFF' + rows.map(r => r.map(esc).join(';')).join('\r\n');
+}
+function download(text, filename){
+  const b = new Blob([text], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(b);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+async function send(){
+  const data = collect();
+  const btn = $('submit');
+  btn.disabled = true;
+  btn.textContent = 'Отправляем…';
+
+  let saved = false;
+
+  if (GOOGLE_SHEET_URL){
+    try{
+      // mode:'no-cors' + urlencoded — единственный способ обойти CORS
+      // без установки скрипта как веб-приложения с доступом "любой"
+      const body = SHEET_HEADERS
+        .map((h, i) => `${encodeURIComponent('f'+i)}=${encodeURIComponent(data[h] ?? '')}`)
+        .join('&');
+
+      await fetch(GOOGLE_SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'},
+        body: body
+      });
+      saved = true;
+    }catch(e){
+      console.error('Ошибка отправки в таблицу:', e);
+      saved = false;
+    }
+  }
+
+  // локальная копия — страховка
+  const store = JSON.parse(localStorage.getItem('village_survey') || '[]');
+  store.push(data);
+  localStorage.setItem('village_survey', JSON.stringify(store));
+
+  const done = $('doneCard');
+  document.querySelectorAll('.step').forEach(s => s.classList.add('hidden'));
+  done.classList.remove('hidden');
+  $('progText').textContent = 'Готово';
+
+  if (saved){
+    $('doneText').textContent = 'Спасибо! Ваш ответ отправлен организаторам проекта. Если вы оставили контакт — мы свяжемся с вами по поводу проекта.';
+  }else{
+    $('doneText').innerHTML = 'Спасибо! Ответ сохранён у вас в этом браузере, но в таблицу проекта не попал (нет связи). Передайте его организатору — кнопка ниже.';
+  }
+  // Кнопку показываем ВСЕГДА: при mode:'no-cors' браузер не показывает
+  // код ответа сервера, поэтому нельзя надёжно отличить успех от 403.
+  // Скачивание копии — единственная гарантия, что ответ не потеряется.
+  $('dlBtn').classList.remove('hidden');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+$('submit').addEventListener('click', () => { if (validate(8)) send(); });
+$('dlBtn').addEventListener('click', () => {
+  const store = JSON.parse(localStorage.getItem('village_survey') || '[]');
+  const rows = [SHEET_HEADERS, ...store.map(o => SHEET_HEADERS.map(h => o[h]))];
+  download(csv(rows), 'otzyv_derevnya.csv');
+});
+
+if (LOCAL_ONLY) $('sheetWarn').classList.remove('hidden');
+
+show(1);
+</script>
+</body>
+</html>
